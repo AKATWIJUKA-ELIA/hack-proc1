@@ -1,59 +1,36 @@
-# syntax=docker/dockerfile:1
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Quotebook — Next.js frontend container.
+# Quotebook — Next.js frontend, built by cloning the repo (Convex is the hosted
+# backend; this image only runs the frontend and talks to Convex Cloud over HTTP).
 #
-# This image runs ONLY the Next.js app. Convex is a hosted backend, not part of
-# this image: the container talks to your Convex deployment over the network via
-# NEXT_PUBLIC_CONVEX_URL.
-#
-# NEXT_PUBLIC_CONVEX_URL is a *build argument*, not just a runtime env var,
-# because Next.js inlines NEXT_PUBLIC_* into the browser bundle at build time.
-# Pass it with --build-arg (see README-DOCKER.md).
-# ─────────────────────────────────────────────────────────────────────────────
+# Same shape as the requested clone-and-run pattern, adapted to this app's stack:
+#   python:3.12-slim  -> node:22-slim   (this is a Node/Next.js app, not Python)
+#   pip install       -> npm ci
+#   gunicorn wsgi     -> next build + next start
+FROM node:22-slim
 
-# ---- Stage 1: install dependencies ----
-FROM node:22-alpine AS deps
+# git, to clone the project into the image.
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Clone the repo. Override with --build-arg to build a fork or a branch.
+ARG REPO_URL=https://github.com/AKATWIJUKA-ELIA/hack-proc1.git
+ARG REPO_REF=trunk
+RUN git clone --depth 1 --branch ${REPO_REF} ${REPO_URL} /app
 WORKDIR /app
-# Only the manifests, so this layer is cached until dependencies change.
-COPY package.json package-lock.json ./
-RUN npm ci
 
-# ---- Stage 2: build the app ----
-FROM node:22-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-# Baked into the client bundle at build time — the Convex Cloud deployment URL.
-# Defaults to the live deployment so `docker build` works with NO flags; override
-# with --build-arg NEXT_PUBLIC_CONVEX_URL=... to point at a different deployment.
+# The Convex Cloud backend URL. Inlined into the client bundle at build time
+# (NEXT_PUBLIC_*), so it must be set before `npm run build`. Defaults to the live
+# deployment so this image builds and runs with no flags.
 ARG NEXT_PUBLIC_CONVEX_URL=https://veracious-stork-385.convex.cloud
 ENV NEXT_PUBLIC_CONVEX_URL=${NEXT_PUBLIC_CONVEX_URL}
 
+# Install dependencies and build the production bundle.
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm ci
 RUN npm run build
 
-# ---- Stage 3: minimal runtime ----
-FROM node:22-alpine AS runner
-WORKDIR /app
-
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
+ENV PORT=8000
 ENV HOSTNAME=0.0.0.0
+EXPOSE 8000
 
-# Run as an unprivileged user.
-RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs
-
-# The standalone output bundles a minimal server + only the deps it needs.
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-
-USER nextjs
-EXPOSE 3000
-
-# server.js is emitted by Next.js standalone output.
-CMD ["node", "server.js"]
+# Serve the built app (mirrors `gunicorn ... -b 0.0.0.0:8000`).
+CMD ["npm", "run", "start", "--", "-p", "8000", "-H", "0.0.0.0"]
