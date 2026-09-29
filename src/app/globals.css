@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette ported from the original Vite app's src/index.css. Warm stone
+   neutrals with a procurement-green accent (#1c6b47), expressed as HSL so
+   shadcn tokens can consume them. Both themes defined from the start. */
+@layer base {
+  :root {
+    --background: 60 11% 96%; /* #f6f6f4 */
+    --foreground: 60 22% 8%; /* #17170f */
+
+    --card: 0 0% 100%;
+    --card-foreground: 60 22% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 60 22% 8%;
+
+    --primary: 152 59% 26%; /* #1c6b47 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 60 6% 93%; /* #efefec */
+    --secondary-foreground: 60 8% 25%;
+
+    --muted: 60 6% 93%;
+    --muted-foreground: 60 4% 45%; /* #71716a */
+
+    --accent: 60 6% 93%;
+    --accent-foreground: 60 22% 8%;
+
+    --destructive: 0 62% 39%; /* #a12727 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 55 13% 87%; /* #e2e2db */
+    --input: 55 13% 87%;
+    --ring: 152 59% 26%;
+
+    /* Semantic status colors (track pills, status dots). */
+    --success: 152 59% 26%;
+    --success-foreground: 0 0% 100%;
+    --warning: 41 100% 27%; /* #8a6100 */
+    --warning-foreground: 0 0% 100%;
+    --info: 205 63% 33%; /* #1f5c8a */
+    --info-foreground: 0 0% 100%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 60 6% 7%; /* #121210 */
+    --foreground: 60 14% 91%; /* #ecece5 */
+
+    --card: 60 6% 10%; /* #1c1c19 */
+    --card-foreground: 60 14% 91%;
+
+    --popover: 60 6% 10%;
+    --popover-foreground: 60 14% 91%;
+
+    --primary: 152 43% 43%; /* #3f9d70 */
+    --primary-foreground: 150 45% 6%;
+
+    --secondary: 60 5% 15%; /* #262622 */
+    --secondary-foreground: 60 8% 76%;
+
+    --muted: 60 5% 15%;
+    --muted-foreground: 60 4% 56%; /* #94948b */
+
+    --accent: 60 5% 15%;
+    --accent-foreground: 60 14% 91%;
+
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 60 7% 17%; /* #2d2d28 */
+    --input: 60 7% 17%;
+    --ring: 152 43% 43%;
+
+    --success: 152 45% 60%; /* #6ec89a */
+    --success-foreground: 150 45% 6%;
+    --warning: 40 63% 61%; /* #ddb45a */
+    --warning-foreground: 40 40% 8%;
+    --info: 205 63% 73%; /* #8ec2e6 */
+    --info-foreground: 205 40% 10%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}

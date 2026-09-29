@@ -1,0 +1,17 @@
+# Run the Quotebook Next.js frontend against your hosted Convex backend.
+#
+#   CONVEX_URL=https://<deployment>.convex.cloud docker compose up --build
+#
+# NEXT_PUBLIC_CONVEX_URL is inlined at build time, so it is passed as a build arg.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Defaults to the dev deployment this repo manages; override with the
+        # CONVEX_URL env var when running the command above.
+        NEXT_PUBLIC_CONVEX_URL: ${CONVEX_URL:-https://veracious-stork-385.convex.cloud}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

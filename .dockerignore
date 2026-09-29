@@ -1,0 +1,27 @@
+# Build artifacts and local state — never send these to the Docker build context.
+node_modules
+.next
+out
+dist
+.git
+.gitignore
+
+# Secrets and local env. NEXT_PUBLIC_CONVEX_URL is passed via --build-arg, so the
+# .env files must not leak into the image.
+.env
+.env.local
+*.local
+
+# Editor / OS cruft
+.DS_Store
+.vscode
+.idea
+
+# Convex CLI scratch + tooling not needed to build the frontend
+.convex-tmp
+.agents
+.claude
+
+# Docs / logs
+*.log
+README-DOCKER.md
