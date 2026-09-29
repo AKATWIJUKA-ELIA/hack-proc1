@@ -1,10 +1,7 @@
 # Quotebook — Next.js frontend, built by cloning the repo (Convex is the hosted
 # backend; this image only runs the frontend and talks to Convex Cloud over HTTP).
 #
-# Same shape as the requested clone-and-run pattern, adapted to this app's stack:
-#   python:3.12-slim  -> node:22-slim   (this is a Node/Next.js app, not Python)
-#   pip install       -> npm ci
-#   gunicorn wsgi     -> next build + next start
+
 FROM node:22-slim
 
 # git, to clone the project into the image.
@@ -28,9 +25,9 @@ RUN npm ci
 RUN npm run build
 
 ENV NODE_ENV=production
-ENV PORT=8000
+ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-EXPOSE 8000
+EXPOSE 3000
 
-# Serve the built app (mirrors `gunicorn ... -b 0.0.0.0:8000`).
-CMD ["npm", "run", "start", "--", "-p", "8000", "-H", "0.0.0.0"]
+# Serve the built Next.js app on the default port.
+CMD ["npm", "run", "start", "--", "-p", "3000", "-H", "0.0.0.0"]
